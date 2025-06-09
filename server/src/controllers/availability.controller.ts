@@ -1,20 +1,26 @@
 import { Request, Response } from "express";
-import { createAvailability, getAvailabilities } from "../services/availability.service";
-import { availabilitySchema } from "../schemas/availability.schema";
-import resposeHandler from "../handlers/response.handler";
+import * as availabilityService from "../services/availability.service";
+import mongoose from "mongoose";
 import asyncHandler from "../handlers/async.handler";
+import responseHandler from "../handlers/response.handler";
 
-export const addAvailability = asyncHandler(async (req: Request, res: Response) => {
-    const parseResult = availabilitySchema.safeParse(req.body);
-    if (!parseResult.success) {
-        return resposeHandler.badRequest(res, parseResult.error.errors);
-    }
+const mockUserId = new mongoose.Types.ObjectId("665f12345678901234567890"); // replace with auth
 
-    const availability = await createAvailability(parseResult.data);
-    resposeHandler.create(res, availability);
+export const listAvailability = asyncHandler(async (req: Request, res: Response) => {
+    const slots = await availabilityService.getUserAvailability(mockUserId);
+    responseHandler.success(res, slots, "Availability slots fetched successfully");
 });
 
-export const listAvailabilities = asyncHandler(async (req: Request, res: Response) => {
-    const availabilities = await getAvailabilities();
-    resposeHandler.success(res, availabilities);
+export const createAvailabilitySlot = asyncHandler(async (req: Request, res: Response) => {
+    const { date, startTime, endTime } = req.body;
+    if (!date || !startTime || !endTime) return res.status(400).json({ message: "Missing fields" });
+
+    const slot = await availabilityService.createAvailability(mockUserId, date, startTime, endTime);
+    responseHandler.create(res, slot, "Availability slot created successfully");
+});
+
+export const getBookings = asyncHandler(async (req: Request, res: Response) => {
+    const { date } = req.params;
+    const bookings = await availabilityService.getBookingsByDate(mockUserId, date);
+    responseHandler.success(res, bookings, "Bookings fetched successfully");
 });

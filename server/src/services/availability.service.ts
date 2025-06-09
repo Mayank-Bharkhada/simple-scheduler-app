@@ -1,10 +1,21 @@
-import { Availability, IAvailability } from "../models/availability.model";
+import { AvailabilityModel } from "../models/availability.model";
+import { Types } from "mongoose";
+import { BookingModel } from "../models/booking.model";
 
-export const createAvailability = async (data: Partial<IAvailability>) => {
-  const availability = new Availability(data);
-  return await availability.save();
+export const getUserAvailability = async (userId: Types.ObjectId) => {
+  return await AvailabilityModel.find({ userId }).sort({ date: 1 });
 };
 
-export const getAvailabilities = async () => {
-  return await Availability.find().sort({ date: 1, startTime: 1 }).exec();
+export const createAvailability = async (
+  userId: Types.ObjectId,
+  date: string,
+  startTime: string,
+  endTime: string
+) => {
+  const slot = new AvailabilityModel({ userId, date, startTime, endTime });
+  return await slot.save();
+};
+
+export const getBookingsByDate = async (userId: Types.ObjectId, date: string) => {
+  return await BookingModel.find({ userId, date }).sort({ startTime: 1 });
 };

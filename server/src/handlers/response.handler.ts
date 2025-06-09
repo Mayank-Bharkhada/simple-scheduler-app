@@ -44,6 +44,6 @@ const serverError = (res: Response, error: unknown, message = "Server Error : So
     })
 }
 
-const resposeHandler = { success, create, notFound, badRequest, serverError };
+const responseHandler = { success, create, notFound, badRequest, serverError };
 
-export default resposeHandler;
+export default responseHandler;

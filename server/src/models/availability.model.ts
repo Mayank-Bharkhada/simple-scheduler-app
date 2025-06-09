@@ -1,18 +1,19 @@
-import mongoose, { Schema, Document } from "mongoose";
+import { Schema, model, Document, Types } from "mongoose";
 
-export interface IAvailability extends Document {
+export type IAvailability = Document & {
+  userId: Types.ObjectId;
   date: string;
   startTime: string;
   endTime: string;
+  slotDuration?: number;
 }
 
-const AvailabilitySchema: Schema = new Schema(
-  {
-    date: { type: String, required: true },
-    startTime: { type: String, required: true },
-    endTime: { type: String, required: true },
-  },
-  { timestamps: true }
-);
+const slotSchema = new Schema<IAvailability>({
+  userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  date: { type: String, required: true },
+  startTime: { type: String, required: true },
+  endTime: { type: String, required: true },
+  slotDuration: { type: Number, default: 30 }
+}, { timestamps: true });
 
-export const Availability = mongoose.model<IAvailability>("Availability", AvailabilitySchema);
+export const AvailabilityModel = model<IAvailability>("Availability", slotSchema);

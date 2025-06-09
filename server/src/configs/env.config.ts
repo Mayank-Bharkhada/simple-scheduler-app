@@ -4,6 +4,10 @@ import { z } from 'zod';
 dotenv.config();
 
 const envSchema = z.object({
+    APP_SECRET_KEY: z.string({
+        required_error: 'APP_SECRET_KEY is required.',
+        invalid_type_error: 'APP_SECRET_KEY must be a string.'
+    }),
     DATABASE_URL: z.string({
         required_error: 'DATABASE_URL is required.',
         invalid_type_error: 'DATABASE_URL must be a string.',

@@ -1,9 +1,14 @@
 import { Router } from "express";
-import { addAvailability, listAvailabilities } from "../controllers/availability.controller";
+import {
+  listAvailability,
+  createAvailabilitySlot,
+  getBookings,
+} from "../controllers/availability.controller";
 
-const router = Router();
+const availabilityRouter = Router();
 
-router.post("/", addAvailability);
-router.get("/", listAvailabilities);
+availabilityRouter.get("/", listAvailability);
+availabilityRouter.post("/", createAvailabilitySlot);
+availabilityRouter.get("/:date/bookings", getBookings);
 
-export default router;
+export default availabilityRouter;
