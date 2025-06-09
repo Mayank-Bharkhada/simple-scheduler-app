@@ -1,35 +1,38 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useMemo } from 'react';
 
-function App() {
-  const [count, setCount] = useState(0)
+// MUI
+import { ThemeProvider, CssBaseline, Snackbar, Alert } from '@mui/material';
+import { getTheme } from './theme';
+
+// ROUTER
+import { RouterProvider } from 'react-router';
+import router from './router';
+
+// STORES
+import { useThemeStore } from './stores/theme.store';
+import { useSnackbarStore } from './stores/snackbar.store';
+
+
+const App: React.FC = () => {
+
+  // THEME
+  const { themeMode } = useThemeStore();
+  const theme = useMemo(() => getTheme(themeMode), [themeMode]);
+
+  // SNACKBAR
+  const snackbar = useSnackbarStore();
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Snackbar open={snackbar.open} autoHideDuration={snackbar.duration} onClose={snackbar.closeSnackbar} anchorOrigin={snackbar.anchorOrigin}>
+        <Alert onClose={snackbar.closeSnackbar} severity={snackbar.severity} variant={snackbar.variant}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+      <RouterProvider router={router} />
+    </ThemeProvider>
+  );
+};
 
-export default App
+export default App;

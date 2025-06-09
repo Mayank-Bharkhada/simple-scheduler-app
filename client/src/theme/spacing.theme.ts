@@ -1,0 +1,1 @@
+export const spacing = 8; // 8px is the default spacing unit in Material-UI
