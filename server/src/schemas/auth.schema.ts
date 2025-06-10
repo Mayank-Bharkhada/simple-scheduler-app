@@ -8,6 +8,10 @@ export const signUpSchema = z.object({
     password: z.string({
         invalid_type_error: "Password Must be string.",
         required_error: "Password is required."
+    }),
+    name: z.string({
+        invalid_type_error: "Name Must be string.",
+        required_error: "Name is required."
     })
 }); 
 

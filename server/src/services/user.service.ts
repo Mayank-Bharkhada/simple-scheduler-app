@@ -11,9 +11,9 @@ export const findUserByEmail = async (email: string) => {
   return UserModel.findOne({ email });
 };
 
-export const createUser = async ({ email, password }: SignUpProps) => {
+export const createUser = async ({ email, password, name }: SignUpProps) => {
   const hashedPassword = await hashPassword(password);
-  const newUser = await UserModel.create({ email, password: hashedPassword });
+  const newUser = await UserModel.create({ email, password: hashedPassword, name });
   return await UserModel.findById(newUser.id);
 };
 

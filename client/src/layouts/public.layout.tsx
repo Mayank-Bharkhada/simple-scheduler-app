@@ -8,7 +8,7 @@ import { Outlet } from 'react-router';
 
 const DashboardLayout: FC = () => {
     return (
-        <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'auto', height: '100vh', width: '100vw' }}>
             <Outlet />
         </Box>
     );

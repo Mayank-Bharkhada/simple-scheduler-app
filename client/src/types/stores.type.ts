@@ -1,6 +1,7 @@
 import type { AlertColor, SnackbarOrigin } from "@mui/material";
 import type { ApiResponse } from "./api.type";
 import type { ThemeModeTypes } from "./theme.type";
+import type { SignInProps, SignUpProps } from "./services.types";
 
 // DEMO STORE
 export type DemoStoreStates = {
@@ -12,6 +13,20 @@ export type DemoStoreStates = {
 export type DemoStoreActions = {
     fetchDemo: () => Promise<ApiResponse>;
 };
+
+// AUTH STORE
+export type AuthStoreStates = {
+    isLoading: boolean;
+    isAuthenticated: boolean;
+    user: any;
+}
+
+export type AuthStoreActions = {
+    signIn: (data: SignInProps, set?: any) => Promise<ApiResponse>;
+    signOut: (set?: any) => Promise<ApiResponse>;
+    signUp: (data: SignUpProps, set?: any) => Promise<ApiResponse>;
+    verifyToken: (set?: any) => Promise<ApiResponse>;
+}
 
 // THEME STORE
 export type ThemeStoreStates = {

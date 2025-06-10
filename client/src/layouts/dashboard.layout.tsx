@@ -1,22 +1,12 @@
-import { type FC, useMemo } from 'react';
+import { type FC, useMemo, useRef, useState } from 'react';
+
 // MUI
-import { Box, Grid, IconButton, Tooltip } from '@mui/material';
+import { Box, Grid, IconButton, Menu, MenuItem, Tooltip } from '@mui/material';
 import {
     DashboardCustomize as DashboardCustomizeIcon,
-    Insights as InsightsIcon,
-    Campaign as CampaignIcon,
-    Widgets as WidgetsIcon,
-    Layers as LayersIcon,
-    CloudSync as CloudSyncIcon,
     AccountCircle as AccountCircleIcon,
     DarkMode as DarkModeIcon,
     LightMode as LightModeIcon,
-    AddCircleOutlineOutlined as AddIcon,
-    Palette as ThemeIcon,
-    AccountTree as StructureIcon,
-    Brush as DesignIcon,
-    // AdsClick as DisplayConditionsIcon,
-    // IntegrationInstructions as IntegrationIcon
 } from '@mui/icons-material';
 
 // Toolpad
@@ -24,13 +14,14 @@ import { DashboardLayout as ToolpadDashboardLayout, type Navigation, } from '@to
 import { ReactRouterAppProvider, } from '@toolpad/core/react-router';
 
 // Router
-import { Outlet, useLocation } from 'react-router';
+import { Outlet } from 'react-router';
 import { useThemeStore } from '../stores/theme.store';
 import { getTheme } from '../theme';
+import { useAuthStore } from '../stores/auth.store';
+import { useSnackbarStore } from '../stores/snackbar.store';
+import { signIn } from '../services/auth.service';
 
-// Stores   
 
-// THEME
 
 const NAVIGATION: Navigation = [
     {
@@ -38,84 +29,50 @@ const NAVIGATION: Navigation = [
         segment: 'dashboard',
         title: 'Dashboard',
         icon: <DashboardCustomizeIcon />,
-    },
-    {
-        kind: "page",
-        segment: 'analytic',
-        title: 'Analytics',
-        icon: <InsightsIcon />,
-    },
-    {
-        kind: "page",
-        segment: 'campaign',
-        title: 'Campaigns',
-        icon: <CampaignIcon />,
-    },
-    {
-        kind: "page",
-        segment: 'widget',
-        title: 'Widgets',
-        icon: <WidgetsIcon />,
-    },
-    {
-        kind: "page",
-        segment: 'integration',
-        title: 'Integrations',
-        icon: <LayersIcon />,
-    },
-    {
-        kind: "page",
-        segment: 'plateform',
-        title: 'Plateforms',
-        icon: <CloudSyncIcon />,
     }
-
 ];
-
-const EDITOR_NAVIGATION: Navigation = [
-    {
-        kind: "page",
-        segment: 'editor',
-        title: 'Design',
-        icon: <DesignIcon />,
-    },
-    {
-        kind: "page",
-        segment: 'editor/add',
-        title: 'Add',
-        icon: <AddIcon />,
-    },
-    {
-        kind: "page",
-        segment: 'editor/theme',
-        title: 'Theme',
-        icon: <ThemeIcon />,
-    },
-    {
-        kind: "page",
-        segment: 'editor/structure',
-        title: 'Structure',
-        icon: <StructureIcon />,
-    },
-
-];
-
-const getNavigation = (path: string) => {
-    console.log(path)
-    if (path.includes('/editor')) {
-        return EDITOR_NAVIGATION;
-    }
-    return NAVIGATION;
-}
 
 const DashboardLayout: FC = () => {
     const { themeMode, toggleThemeMode } = useThemeStore();
+    const { setSnackbar } = useSnackbarStore();
+    const { signOut } = useAuthStore();
     const theme = useMemo(() => getTheme(themeMode), [themeMode]);
-    const location = useLocation()
-    const navigation = useMemo(() => getNavigation(location.pathname), [location.pathname]);
+    const [openMenu, setOpenMenu] = useState<boolean>(false);
+    const anchorRef = useRef<HTMLButtonElement>(null);
+
+    const handleClose = (event: Event | React.SyntheticEvent) => {
+        if (
+            anchorRef.current &&
+            anchorRef.current.contains(event.target as HTMLElement)
+        ) {
+            return;
+        }
+
+        setOpenMenu(false);
+    };
+
+    const handleSignOut = async () => {
+        try {
+            const response = await signOut();
+            if (response.success) {
+                setSnackbar({
+                    open: true,
+                    message: response.message || "Sign Out Successful",
+                    severity: "success",
+                });
+                setOpenMenu(false);
+            }
+        } catch (error: unknown) {
+            setSnackbar({
+                open: true,
+                message: (error as Error)?.message ?? "An unexpected error occurred",
+                severity: "error",
+            });
+        }
+    };
 
     return (
-        <ReactRouterAppProvider navigation={navigation} theme={theme} >
+        <ReactRouterAppProvider navigation={NAVIGATION} theme={theme} >
             <ToolpadDashboardLayout
                 branding={{
                     // logo: "",
@@ -132,7 +89,10 @@ const DashboardLayout: FC = () => {
                                 </IconButton>
                             </Tooltip>
                             <Tooltip title="Profile">
-                                <IconButton>
+                                <IconButton
+                                    ref={anchorRef}
+                                    onClick={() => setOpenMenu(true)}
+                                >
                                     <AccountCircleIcon />
                                 </IconButton>
                             </Tooltip>
@@ -142,6 +102,22 @@ const DashboardLayout: FC = () => {
                 <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
                     <Outlet />
                 </Box>
+                <Menu
+                    elevation={0}
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'right',
+                    }}
+                    transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right',
+                    }}
+                    anchorEl={anchorRef.current}
+                    open={Boolean(openMenu)}
+                    onClose={handleClose}
+                >
+                    <MenuItem onClick={handleSignOut}>Sign Out</MenuItem>
+                </Menu>
             </ToolpadDashboardLayout>
         </ReactRouterAppProvider>
     );

@@ -6,6 +6,7 @@ import { createUser, findUserByEmail, findUserById, generateUserToken } from '..
 import { IUser } from '../models/user.model';
 import { generateToken, verifyToken } from '../utils/jwt.utill';
 import { JwtPayload } from 'jsonwebtoken';
+import { comparePassword } from '../utils/bycrypt.utill';
 
 export const signUp = asyncHandler(async (req: Request, res: Response) => {
     const validation = await signUpSchema.safeParseAsync(req.body);
@@ -45,9 +46,8 @@ export const signIn = asyncHandler(async (req: Request, res: Response) => {
     if (!user) {
         return responseHandler.badRequest(res, { message: 'Invalid credentials.' }, 'Invalid credentials.');
     }
-
-    // await comparePassword(password, user);
-    const isPasswordValid = password === user.password;
+    
+    const isPasswordValid = await comparePassword(password, user);
 
     if (!isPasswordValid) {
         return responseHandler.badRequest(res, { message: "Invalid credentials." }, "Invalid credentials.");
